@@ -1,0 +1,9 @@
+{
+  "name": "phaser",
+  "version": "0.0.0",
+  "description": "Code from the React tutorial.",
+  "main": "server.js",
+  "dependencies": {
+    "express": "^4.4.5"
+  }
+}
