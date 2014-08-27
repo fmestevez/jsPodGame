@@ -27,3 +27,15 @@ Installation:
 [React]:http://facebook.github.io/react/
 [express]:http://expressjs.com/
 [Phaser]:http://phaser.io/
+
+
+Online URL
+----------
+http://podgame.herokuapp.com/
+
+
+Deploy in Heroku
+----------------
+1. Add remote repository: git remote add heroku git@heroku.com:podgame.git
+2. git push heroku master
+3. Enjoy!
