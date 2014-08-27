@@ -1,6 +1,9 @@
 var playState = {
 
 	create: function() { 
+        // Creates world (loads tilemap)
+        this.createWorld();
+        
         // Create player
         this.player = game.add.sprite(50, game.world.centerY, 'player');
         this.player.anchor.setTo(0.5, 0.5);
@@ -14,9 +17,6 @@ var playState = {
         game.physics.arcade.enable(this.player);
         this.player.body.gravity.y = 400;
         game.physics.enable(this.player, Phaser.Physics.ARCADE);
-        
-        // Creates world (loads tilemap)
-        this.createWorld();
         
         // Adds new key to control the player
         this.keys = {
@@ -39,6 +39,11 @@ var playState = {
 	},
     
     createWorld: function () {
+        this.background = game.add.tileSprite(0, 1, 
+            game.stage.bounds.width, 
+            game.cache.getImage('background').height,
+            'background');
+        
         this.map = game.add.tilemap('pista1');
         this.map.addTilesetImage('pista1_tileset');
         this.layer = this.map.createLayer('pista1');
