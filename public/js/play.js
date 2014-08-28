@@ -16,7 +16,6 @@ var playState = {
         // Enables player to have physics
         game.physics.arcade.enable(this.player);
         this.player.body.gravity.y = 400;
-        game.physics.enable(this.player, Phaser.Physics.ARCADE);
         
         // Adds new key to control the player
         this.keys = {
