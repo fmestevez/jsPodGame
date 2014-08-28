@@ -4,6 +4,8 @@ var playState = {
         // Creates world (loads tilemap)
         this.createWorld();
         
+        this.keypressEnabled = true;
+        
         // Create player
         this.player = game.add.sprite(50, game.world.centerY, 'player');
         this.player.anchor.setTo(0.5, 0.5);
@@ -17,15 +19,28 @@ var playState = {
         game.physics.arcade.enable(this.player);
         this.player.body.gravity.y = 400;
         
+        game.camera.follow(this.player, Phaser.Camera.FOLLOW_PLATFORMER);
+        
         // Adds new key to control the player
         this.keys = {
             space: game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR),
         };
         
         this.keys.space.onDown.add(this.movePlayer, this);
+        
+        // Adds aim bar and aim pointer
+        this.aimbar = game.add.sprite(game.cache
+            .getImage('aimbar').width /2 + 10, 
+            game.cache.getImage('aimbar').height/2 + 10, 'aimbar');
+        this.aimbar.anchor.setTo(0.5, 0.5);
+        this.aimbar.fixedToCamera = true;
+        this.aimpointer = game.add.sprite(14, 20, 'aimpointer');
+        this.aimpointer.anchor.setTo(0.5, 0.5);
+        this.aimpointer.fixedToCamera = true;
+        this.setAimpointerAnimation();
 	},
 
-	update: function() {
+	update: function() {   
         game.physics.arcade.collide(this.player, this.layer);
 
         // Deaccelerates player every frame
@@ -38,8 +53,9 @@ var playState = {
 	},
     
     createWorld: function () {
-        this.background = game.add.tileSprite(0, 1, 
-            game.stage.bounds.width, 
+        game.world.setBounds(0, 0, 6400, 320);
+        this.background = game.add.tileSprite(0, 0, 
+            game.world.bounds.width, 
             game.cache.getImage('background').height,
             'background');
         
@@ -47,16 +63,44 @@ var playState = {
         this.map.addTilesetImage('pista1_tileset');
         this.layer = this.map.createLayer('pista1');
         
-        //this.layer.resizeWorld();
-        // TODO: check if above line is necessary
         this.map.setCollision(2);
-        game.world.setBounds(0, 0, 1280, 320);
+        
+    },
+        
+    movePlayer: function () {
+        if(!this.keypressEnabled) return;
+        
+        this.player.animations.play('run');
+        
+        this.aimtween.stop();
+        
+        // Adds tiny animation to the aim pointer when stopped
+        game.add.tween(this.aimpointer.scale).to({x: 1.2, y: 1.2}, 200)
+        .to({x: 1, y: 1}, 200).start();
+        
+        // Depending on the position on the bar, accels [~10 -> ~100] * 200
+        var pointerVal = this.aimpointer.cameraOffset.x;
+        var barWidth = game.cache.getImage('aimbar').width;
+        var accel = (pointerVal < barWidth / 2)?
+            pointerVal : barWidth - pointerVal;
+        this.player.body.acceleration.x = Math.abs(accel) * 200;
+        
+        // Disables spacebar and counts seconds to reactivate
+        this.keypressEnabled = false;
+        game.time.events.add(Phaser.Timer.SECOND * 2, this.reEnableAimbar, this);
     },
     
-    movePlayer: function () {
-        this.player.animations.play('run');
-
-        // This value should be replaced with the value fetched from the aimbar
-        this.player.body.acceleration.x = 5000;
+    reEnableAimbar: function () {
+        this.setAimpointerAnimation();
+        this.keypressEnabled = true;
+    },
+    
+    setAimpointerAnimation: function () {
+        // Adds animation to aim pointer
+        this.aimpointer.cameraOffset.setTo(14, 20);
+        this.aimtween = game.add.tween(this.aimpointer.cameraOffset)
+        .to({x: 208}, 600, Phaser.Easing.Sinusoidal.Out, 
+            true, 0, Number.MAX_VALUE, true);
+        this.aimtween.start();
     },
 };
