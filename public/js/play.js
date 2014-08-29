@@ -99,7 +99,7 @@ var playState = {
         // Adds animation to aim pointer
         this.aimpointer.cameraOffset.setTo(14, 20);
         this.aimtween = game.add.tween(this.aimpointer.cameraOffset)
-        .to({x: 208}, 600, Phaser.Easing.Sinusoidal.Out, 
+        .to({x: 208}, 400, Phaser.Easing.Circular.Out, 
             true, 0, Number.MAX_VALUE, true);
         this.aimtween.start();
     },
