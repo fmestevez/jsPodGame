@@ -5,6 +5,8 @@ var playState = {
         this.createWorld();
         
         this.keypressEnabled = true;
+        this.raceStart = false;
+        this.raceFinish = false;
         
         // Create player
         this.player = game.add.sprite(50, game.world.centerY, 'player');
@@ -38,10 +40,23 @@ var playState = {
         this.aimpointer.anchor.setTo(0.5, 0.5);
         this.aimpointer.fixedToCamera = true;
         this.setAimpointerAnimation();
+        
+        this.timerText = game.add.text(game.camera.width - 100, 
+            20, "0", {
+            font: "20px 'Press Start 2P'",
+            fill: "#000",
+            align: "right"
+        });
+        this.timerText.anchor.setTo(0.5, 0.5);
+        this.timerText.fixedToCamera = true;
 	},
 
 	update: function() {   
         game.physics.arcade.collide(this.player, this.layer);
+        
+        if(this.raceStart && !this.raceFinish) {
+            this.timerText.setText(game.time.elapsedSince(this.startTime) / 1000);
+        }
 
         // Deaccelerates player every frame
         this.player.body.acceleration.x = 0;
@@ -53,18 +68,23 @@ var playState = {
 	},
     
     createWorld: function () {
-        game.world.setBounds(0, 0, 6400, 320);
-        this.background = game.add.tileSprite(0, 0, 
-            game.world.bounds.width, 
-            game.cache.getImage('background').height,
-            'background');
-        
         this.map = game.add.tilemap('pista1');
         this.map.addTilesetImage('pista1_tileset');
         this.layer = this.map.createLayer('pista1');
         
-        this.map.setCollision(2);
+        // Sets collidable tiles (floor)
+        this.map.setCollision([2, 5]);
         
+        // Sets start and finish lines events
+        this.map.setTileIndexCallback(8, this.handleStart, this);
+        this.map.setTileIndexCallback(7, this.handleFinish, this);
+        
+        game.world.setBounds(0, 0, this.map.widthInPixels, 
+            this.map.heightInPixels);
+        this.background = game.add.tileSprite(0, 0, 
+            game.world.bounds.width, 
+            game.cache.getImage('background').height,
+                'background');
     },
         
     movePlayer: function () {
@@ -102,5 +122,18 @@ var playState = {
         .to({x: 208}, 400, Phaser.Easing.Circular.Out, 
             true, 0, Number.MAX_VALUE, true);
         this.aimtween.start();
+    },
+    
+    handleStart: function () {
+        if(this.raceStart) return;
+        
+        this.raceStart = true;
+        this.startTime = game.time.now; 
+    },
+    
+    handleFinish: function () {
+        if(this.raceFinish) return;
+        
+        this.raceFinish = true;
     },
 };
