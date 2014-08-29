@@ -1,6 +1,6 @@
 var playState = {
 
-	create: function() { 
+	create: function() {
         // Creates world (loads tilemap)
         this.createWorld();
         
@@ -23,26 +23,32 @@ var playState = {
         
         game.camera.follow(this.player, Phaser.Camera.FOLLOW_PLATFORMER);
         
-        // Adds new key to control the player
+        // Adds space key to control the aimer
         this.keys = {
-            space: game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR),
+            space: game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR)
         };
-        
         this.keys.space.onDown.add(this.movePlayer, this);
         
-        // Adds aim bar and aim pointer
-        this.aimbar = game.add.sprite(game.cache
-            .getImage('aimbar').width /2 + 10, 
-            game.cache.getImage('aimbar').height/2 + 10, 'aimbar');
+        // Adds mouse click to control the aimer
+        game.input.onDown.add(this.movePlayer, this);
+        
+        // Adds aim bar
+        this.aimbar = game.add.sprite(
+            game.cache.getImage('aimbar').width / 2 + 10,
+            game.cache.getImage('aimbar').height / 2 + 10,
+            'aimbar'
+        );
         this.aimbar.anchor.setTo(0.5, 0.5);
         this.aimbar.fixedToCamera = true;
+
+        // Adds aim pointer
         this.aimpointer = game.add.sprite(14, 20, 'aimpointer');
         this.aimpointer.anchor.setTo(0.5, 0.5);
         this.aimpointer.fixedToCamera = true;
+
         this.setAimpointerAnimation();
         
-        this.timerText = game.add.text(game.camera.width - 100, 
-            20, "0", {
+        this.timerText = game.add.text(game.camera.width - 100, 20, "0", {
             font: "20px 'Press Start 2P'",
             fill: "#000",
             align: "right"
@@ -51,10 +57,10 @@ var playState = {
         this.timerText.fixedToCamera = true;
 	},
 
-	update: function() {   
+	update: function() {
         game.physics.arcade.collide(this.player, this.layer);
         
-        if(this.raceStart && !this.raceFinish) {
+        if (this.raceStart && !this.raceFinish) {
             this.timerText.setText(game.time.elapsedSince(this.startTime) / 1000);
         }
 
@@ -63,8 +69,8 @@ var playState = {
         this.player.body.drag.x = this.player.body.velocity.x / 1.5;
         
         if (this.player.body.velocity.x < 10) {
-            this.player.frame = 0;  
-        };
+            this.player.frame = 0;
+        }
 	},
     
     createWorld: function () {
@@ -79,12 +85,11 @@ var playState = {
         this.map.setTileIndexCallback(8, this.handleStart, this);
         this.map.setTileIndexCallback(7, this.handleFinish, this);
         
-        game.world.setBounds(0, 0, this.map.widthInPixels, 
-            this.map.heightInPixels);
-        this.background = game.add.tileSprite(0, 0, 
-            game.world.bounds.width, 
+        game.world.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
+        this.background = game.add.tileSprite(0, 0,
+            game.world.bounds.width,
             game.cache.getImage('background').height,
-                'background');
+            'background');
     },
         
     movePlayer: function () {
@@ -96,17 +101,17 @@ var playState = {
         
         // Adds tiny animation to the aim pointer when stopped
         game.add.tween(this.aimpointer.scale).to({x: 1.2, y: 1.2}, 200)
-        .to({x: 1, y: 1}, 200).start();
+            .to({x: 1, y: 1}, 200).start();
         
         // Depending on the position on the bar, accels [~10 -> ~100] * 200
         var pointerVal = this.aimpointer.cameraOffset.x;
         var barWidth = game.cache.getImage('aimbar').width;
-        var accel = (pointerVal < barWidth / 2)?
-            pointerVal : barWidth - pointerVal;
+        var accel = (pointerVal < barWidth / 2)? pointerVal : barWidth - pointerVal;
         this.player.body.acceleration.x = Math.abs(accel) * 200;
         
         // Disables spacebar and counts seconds to reactivate
         this.keypressEnabled = false;
+
         game.time.events.add(Phaser.Timer.SECOND * 2, this.reEnableAimbar, this);
     },
     
@@ -119,8 +124,8 @@ var playState = {
         // Adds animation to aim pointer
         this.aimpointer.cameraOffset.setTo(14, 20);
         this.aimtween = game.add.tween(this.aimpointer.cameraOffset)
-        .to({x: 208}, 400, Phaser.Easing.Circular.Out, 
-            true, 0, Number.MAX_VALUE, true);
+            .to({x: 208}, 400, Phaser.Easing.Circular.Out,
+                true, 0, Number.MAX_VALUE, true);
         this.aimtween.start();
     },
     
@@ -128,12 +133,12 @@ var playState = {
         if(this.raceStart) return;
         
         this.raceStart = true;
-        this.startTime = game.time.now; 
+        this.startTime = game.time.now;
     },
     
     handleFinish: function () {
-        if(this.raceFinish) return;
+        if (this.raceFinish) return;
         
         this.raceFinish = true;
-    },
+    }
 };
