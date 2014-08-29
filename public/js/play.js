@@ -14,6 +14,7 @@ var playState = {
         
         // Add player's animations
         this.player.animations.add('run', [0, 1], 8, true);
+        this.player.animations.add('walk', [0, 4, 3], 8, true);
         this.player.animations.add('jump', [2, 3], 8, true);
         this.player.frame = 0;
         
@@ -60,17 +61,16 @@ var playState = {
 	update: function() {
         game.physics.arcade.collide(this.player, this.layer);
         
-        if (this.raceStart && !this.raceFinish) {
-            this.timerText.setText(game.time.elapsedSince(this.startTime) / 1000);
+        if(this.raceStart && !this.raceFinish) {
+            this.lapTime = game.time.elapsedSince(this.startTime) / 1000;
+            this.timerText.setText(this.lapTime);
         }
 
         // Deaccelerates player every frame
         this.player.body.acceleration.x = 0;
         this.player.body.drag.x = this.player.body.velocity.x / 1.5;
         
-        if (this.player.body.velocity.x < 10) {
-            this.player.frame = 0;
-        }
+        this.handlePlayerAnimations(this.player.body.velocity.x);
 	},
     
     createWorld: function () {
@@ -95,8 +95,6 @@ var playState = {
     movePlayer: function () {
         if(!this.keypressEnabled) return;
         
-        this.player.animations.play('run');
-        
         this.aimtween.stop();
         
         // Adds tiny animation to the aim pointer when stopped
@@ -116,6 +114,8 @@ var playState = {
     },
     
     reEnableAimbar: function () {
+        if(this.raceFinish) return;
+        
         this.setAimpointerAnimation();
         this.keypressEnabled = true;
     },
@@ -137,8 +137,19 @@ var playState = {
     },
     
     handleFinish: function () {
-        if (this.raceFinish) return;
-        
+        if(this.raceFinish) return;
+    
         this.raceFinish = true;
-    }
+    },
+    
+    handlePlayerAnimations: function (playerSpeed) {
+        if (playerSpeed < 10) {
+            this.player.body.velocity.x = 0;
+            this.player.frame = 0;  
+        } else if (playerSpeed < 60) {
+            this.player.animations.play('walk');
+        } else {
+            this.player.animations.play('run');
+        }
+    },
 };
