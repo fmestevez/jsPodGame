@@ -9,7 +9,8 @@ Technologies:
 * [Node.js] 0.10.31 
 * [React] 0.11.1 
 * [Express] 4.4.5 
-* [Phaser] 2.0.5 
+* [Phaser] 2.0.5
+* [Tiled] 0.9.1
 
 
 Installation:
@@ -27,7 +28,7 @@ Installation:
 [React]:http://facebook.github.io/react/
 [express]:http://expressjs.com/
 [Phaser]:http://phaser.io/
-
+[Tiled]:http://www.mapeditor.org/
 
 Online URL
 ----------
